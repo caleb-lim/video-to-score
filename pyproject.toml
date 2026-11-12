@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video-to-score"
+version = "0.1.0"
+description = "YouTube song -> multi-staff MusicXML draft (melody, backing, bass, piano, chords) for arranging piano covers"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy",
+    "pyyaml",
+    "pretty_midi",
+    "music21>=9",
+    "mir_eval",
+    "yt-dlp",
+]
+
+[project.optional-dependencies]
+# Heavy ML stack. Install PyTorch for your platform FIRST (pytorch.org), then `pip install -e ".[ml]"`.
+ml = [
+    "demucs",
+    "transkun",
+    "torchcrepe",
+    "beat_this @ https://github.com/CPJKU/beat_this/archive/main.zip",
+]
+# basic-pitch can clash with torch's numpy pin. If it does, install it in a separate venv
+# and point transcribe.basic_pitch_cmd in config.yaml at that venv's executable.
+basicpitch = ["basic-pitch"]
+# Needs the Chordino Vamp plugin installed system-wide (see README).
+chords = ["chord-extractor"]
+dev = ["pytest"]
+
+[project.scripts]
+video-to-score = "video_to_score.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

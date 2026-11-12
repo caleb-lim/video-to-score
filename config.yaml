@@ -1,0 +1,41 @@
+# video-to-score settings. Every key is optional; missing keys fall back to defaults in src/video_to_score/config.py.
+
+device: cuda            # cuda | cpu | mps (mps support varies by model)
+
+separate:
+  model: htdemucs_6s    # stems: vocals, bass, piano, guitar, drums, other
+
+vocal_split:
+  # null = pass the whole vocal stem through as the lead (start here).
+  # Later: set to a shell command template for a karaoke model, e.g. an
+  # audio-separator / UVR mel-band roformer karaoke model.
+  # Placeholders: {input} {lead} {backing}
+  command: null
+
+transcribe:
+  # Command used to call Basic Pitch. If it lives in another venv, give the full path,
+  # e.g. ~/.venvs/basicpitch/bin/basic-pitch
+  basic_pitch_cmd: basic-pitch
+  basic_pitch_stems: [bass, guitar, other]
+  piano_stem: piano     # transcribed with Transkun
+
+melody:
+  crepe_model: full     # full | tiny
+  hop_ms: 10
+  fmin_hz: 65
+  fmax_hz: 1047
+  periodicity_threshold: 0.21   # below this a frame counts as unvoiced
+  smooth_frames: 7              # running-median window on the pitch curve
+  split_semitones: 0.7          # start a new note when pitch leaves the note's median by this much...
+  split_hold_frames: 4          # ...for at least this many consecutive frames
+  min_note_s: 0.08              # drop notes shorter than this
+  merge_gap_s: 0.05             # merge same-pitch notes separated by a gap shorter than this
+
+beats:
+  checkpoint: final0
+  dbn: false
+
+assemble:
+  grid_per_beat: 4      # 4 = 16th notes; 3 = triplet 8ths
+  beat_ql: 1.0          # quarterLength of one detected beat (1.0 = quarter; 1.5 for 6/8 felt in 2)
+  piano_split_midi: 60  # notes >= this go to the right-hand staff
