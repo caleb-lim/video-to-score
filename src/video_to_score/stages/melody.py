@@ -13,7 +13,7 @@ import numpy as np
 from ..midi_io import write_notes
 from ..segment import hz_to_midi, segment_notes
 from ..song import Song
-from ..util import log
+from ..util import log, resolve_device
 
 NAME = "melody"
 
@@ -23,15 +23,16 @@ def outputs(song: Song, cfg: dict) -> list[Path]:
 
 
 def track_pitch(song: Song, cfg: dict) -> None:
+    import soundfile as sf
     import torch
-    import torchaudio
     import torchcrepe
 
     m = cfg["melody"]
-    audio, sr = torchaudio.load(str(song.lead))
-    audio = audio.mean(0, keepdim=True)  # stereo stem -> mono, shape (1, samples)
+    # soundfile rather than torchaudio.load: newer torchaudio versions moved audio I/O out.
+    data, sr = sf.read(str(song.lead), dtype="float32", always_2d=True)
+    audio = torch.from_numpy(data.mean(axis=1)).unsqueeze(0)  # stereo stem -> mono, (1, samples)
     hop = int(sr * m["hop_ms"] / 1000)
-    device = cfg["device"] if cfg["device"] != "cuda" or torch.cuda.is_available() else "cpu"
+    device = resolve_device(cfg)
     log.info("torchcrepe (%s) on %s", m["crepe_model"], device)
     pitch, periodicity = torchcrepe.predict(
         audio, sr, hop,

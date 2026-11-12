@@ -30,3 +30,20 @@ def write_json(path: Path, obj: Any) -> None:
 
 def read_json(path: Path) -> Any:
     return json.loads(Path(path).read_text())
+
+
+def resolve_device(cfg: dict) -> str:
+    """'auto' -> cuda if a GPU is visible (e.g. `docker run --gpus all`), else cpu."""
+    dev = str(cfg.get("device", "auto")).lower()
+    if dev not in ("auto", "cuda"):
+        return dev
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            return "cuda"
+    except ImportError:
+        pass
+    if dev == "cuda":
+        log.warning("device=cuda but no GPU is visible; falling back to cpu")
+    return "cpu"

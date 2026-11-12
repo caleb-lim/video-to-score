@@ -1,6 +1,6 @@
 # video-to-score settings. Every key is optional; missing keys fall back to defaults in src/video_to_score/config.py.
 
-device: cuda            # cuda | cpu | mps (mps support varies by model)
+device: auto            # auto (GPU if visible, else CPU) | cuda | cpu | mps
 
 separate:
   model: htdemucs_6s    # stems: vocals, bass, piano, guitar, drums, other

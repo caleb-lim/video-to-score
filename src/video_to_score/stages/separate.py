@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from ..song import Song
-from ..util import run_cmd
+from ..util import resolve_device, run_cmd
 
 NAME = "separate"
 STEMS_6 = ["vocals", "bass", "piano", "guitar", "drums", "other"]
@@ -24,7 +24,7 @@ def run(song: Song, cfg: dict) -> None:
     run_cmd([
         sys.executable, "-m", "demucs",
         "-n", cfg["separate"]["model"],
-        "-d", cfg["device"],
+        "-d", resolve_device(cfg),
         "-o", song.stems_dir,
         song.audio,
     ])

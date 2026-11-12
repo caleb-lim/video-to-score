@@ -1,0 +1,40 @@
+# docker compose run --rm vts "https://www.youtube.com/watch?v=..."       (NVIDIA GPU)
+# docker compose run --rm vts-cpu "https://www.youtube.com/watch?v=..."   (no GPU / Mac)
+#
+# Outputs appear in ./songs/<video id>/ on your machine.
+# Edit ./config.yaml on your machine; the container reads it on every run.
+
+x-common: &common
+  volumes:
+    - ./songs:/work/songs
+    - ./config.yaml:/work/config.yaml:ro
+    - vts-cache:/cache            # model weights survive between runs
+  # Write output files as your user, not root (Linux hosts). Export UID/GID if yours aren't 1000.
+  user: "${UID:-1000}:${GID:-1000}"
+
+services:
+  vts:
+    <<: *common
+    image: video-to-score:gpu
+    build:
+      context: .
+      args:
+        TORCH_VARIANT: cu124
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  vts-cpu:
+    <<: *common
+    image: video-to-score:cpu
+    build:
+      context: .
+      args:
+        TORCH_VARIANT: cpu
+
+volumes:
+  vts-cache:

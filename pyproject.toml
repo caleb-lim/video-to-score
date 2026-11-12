@@ -23,6 +23,7 @@ ml = [
     "demucs",
     "transkun",
     "torchcrepe",
+    "soundfile",
     "beat_this @ https://github.com/CPJKU/beat_this/archive/main.zip",
 ]
 # basic-pitch can clash with torch's numpy pin. If it does, install it in a separate venv

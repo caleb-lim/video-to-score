@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 from ..song import Song
-from ..util import log, run_cmd
+from ..util import log, resolve_device, run_cmd
 
 NAME = "transcribe"
 
@@ -45,7 +45,7 @@ def basic_pitch(cmd: str, src: Path, dst: Path) -> None:
 
 
 def run(song: Song, cfg: dict) -> None:
-    device = cfg["device"]
+    device = resolve_device(cfg)
     if song.solo_piano:
         transkun(song.audio, song.midi("piano"), device)
         return

@@ -23,7 +23,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--name", help="song folder name (default: video id or file name)")
     ap.add_argument("--songs-dir", default="songs", help="where song folders live (default: songs/)")
     ap.add_argument("--config", default="config.yaml")
-    ap.add_argument("--device", help="override config device: cuda | cpu | mps")
+    ap.add_argument("--device", help="override config device: auto | cuda | cpu | mps")
     ap.add_argument("--solo-piano", action="store_true",
                     help="solo piano recording: skip separation/vocals, Transkun on the full mix")
     ap.add_argument("--from-stage", choices=list(stages.BY_NAME),

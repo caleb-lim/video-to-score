@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 DEFAULTS: dict[str, Any] = {
-    "device": "cuda",
+    "device": "auto",
     "separate": {"model": "htdemucs_6s"},
     "vocal_split": {"command": None},
     "transcribe": {
