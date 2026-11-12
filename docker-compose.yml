@@ -1,5 +1,5 @@
-# docker compose run --rm vts "https://www.youtube.com/watch?v=..."       (NVIDIA GPU)
-# docker compose run --rm vts-cpu "https://www.youtube.com/watch?v=..."   (no GPU / Mac)
+# docker compose run --rm vts "https://www.youtube.com/watch?v=..."       (CPU: works anywhere)
+# docker compose run --rm vts-gpu "https://www.youtube.com/watch?v=..."   (NVIDIA GPU only)
 #
 # Outputs appear in ./songs/<video id>/ on your machine.
 # Edit ./config.yaml on your machine; the container reads it on every run.
@@ -15,6 +15,15 @@ x-common: &common
 services:
   vts:
     <<: *common
+    image: video-to-score:cpu
+    build:
+      context: .
+      args:
+        TORCH_VARIANT: cpu
+
+  # NVIDIA only. AMD GPUs (especially integrated Radeon) aren't supported here; use `vts`.
+  vts-gpu:
+    <<: *common
     image: video-to-score:gpu
     build:
       context: .
@@ -27,14 +36,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
-  vts-cpu:
-    <<: *common
-    image: video-to-score:cpu
-    build:
-      context: .
-      args:
-        TORCH_VARIANT: cpu
 
 volumes:
   vts-cache:

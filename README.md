@@ -43,21 +43,25 @@ Nothing to install except Docker. ffmpeg, PyTorch, the models and Basic Pitch (i
 git clone https://github.com/caleb-lim/video-to-score && cd video-to-score
 mkdir -p songs
 
-# NVIDIA GPU (Linux, or Windows with WSL2). Needs the NVIDIA Container Toolkit on Linux.
+# CPU (default; works on any machine, including AMD/Intel integrated graphics and Macs)
 docker compose build vts
 docker compose run --rm vts "https://www.youtube.com/watch?v=..."
 
-# No GPU, or a Mac (Docker on macOS can't use the Apple GPU)
-docker compose build vts-cpu
-docker compose run --rm vts-cpu "https://www.youtube.com/watch?v=..."
+# NVIDIA GPU only (Linux with the NVIDIA Container Toolkit, or Windows + WSL2)
+docker compose build vts-gpu
+docker compose run --rm vts-gpu "https://www.youtube.com/watch?v=..."
 ```
+
+**CPU timing (rough):** the first full run of a 4-minute song takes about 10–20 minutes, most of it Demucs and torchcrepe. Re-runs from `--from-stage melody` onward take seconds, because the stems and pitch curve are cached. While tuning, `melody.crepe_model: tiny` speeds up pitch tracking a lot; switch back to `full` for final drafts.
+
+**Memory:** Demucs needs roughly 4–8 GB of RAM on CPU. On Windows/Mac, give Docker Desktop at least 8 GB (Settings → Resources) or separation may be killed partway through.
 
 - **Outputs** go to `./songs/<video id>/` on your machine. Open `score.musicxml` in MuseScore.
 - **Config:** `./config.yaml` is mounted into the container, so edit it on your machine and re-run. `device: auto` uses the GPU when one is visible and falls back to CPU otherwise.
 - **All CLI flags work** the same way: `docker compose run --rm vts "<url>" --from-stage melody`.
 - **Local audio files** must be inside `./songs`, because that's the only folder the container can see: `docker compose run --rm vts songs/inbox/track.mp3 --name track`.
 - **Model weights** download on the first run into the `vts-cache` volume and are reused after that.
-- **Tests:** `docker compose run --rm --entrypoint pytest vts-cpu /app/tests -q`
+- **Tests:** `docker compose run --rm --entrypoint pytest vts /app/tests -q`
 - **Rebuilding:** source changes rebuild in seconds. The ML dependencies are in an earlier, cached layer, so only changes to `pyproject.toml` re-download them.
 - **CUDA version:** to use a different CUDA build of PyTorch, change `TORCH_VARIANT` in `docker-compose.yml` (for example `cu126`). The default `cu124` works with any driver new enough for CUDA 12.
 - **Chord symbols** are off in the image, because Chordino needs a Vamp plugin that isn't installed. The chords stage skips itself cleanly.

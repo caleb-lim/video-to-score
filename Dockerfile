@@ -1,5 +1,5 @@
-# GPU image (default):  docker compose build vts
-# CPU image:            docker compose build vts-cpu
+# CPU image (default):  docker compose build vts
+# NVIDIA GPU image:     docker compose build vts-gpu
 #   or by hand:         docker build --build-arg TORCH_VARIANT=cpu -t video-to-score:cpu .
 #
 # TORCH_VARIANT is a PyTorch wheel index: cpu, cu118, cu124, cu126 ... (see pytorch.org).
